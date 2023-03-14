@@ -127,7 +127,7 @@ class Predictor(BasePredictor):
                 [prompt] * num_outputs,
                 num_inference_steps=num_inference_steps,
                 guidance_scale=guidance_scale,
-            )["sample"]
+            )
 
         output_paths = []
         for i, image in enumerate(images):

@@ -2,8 +2,9 @@ import os, stat
 from typing import List
 
 import torch
+from PIL import Image
 from pytorch_lightning import seed_everything
-from diffusers import StableDiffusionPipeline
+from diffusers import StableDiffusionInpaintPipeline
 from transformers import CLIPTextModel, CLIPTokenizer
 from huggingface_hub import hf_hub_download
 from cog import BasePredictor, Path, Input
@@ -18,7 +19,7 @@ class Predictor(BasePredictor):
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading pipeline...")
 
-        self.pretrained_model_name_or_path = "CompVis/stable-diffusion-v1-4"
+        self.pretrained_model_name_or_path = "stabilityai/stable-diffusion-2-inpainting"
 
         self.tokenizer = CLIPTokenizer.from_pretrained(
             self.pretrained_model_name_or_path,
@@ -45,6 +46,12 @@ class Predictor(BasePredictor):
             description="Input prompt with <your-chosen-concept>.",
             default="a <cat-toy> themed lunchbox",
         ),
+        image: Path = Input(
+            description="Inital image to generate variations of. Supproting images size with 512x512",
+        ),
+        mask: Path = Input(
+            description="Black and white image to use as mask for inpainting over the image provided. White pixels are inpainted and black pixels are preserved",
+        ),
         num_outputs: int = Input(
             description="Number of images to output", choices=[1, 4], default=1
         ),
@@ -66,6 +73,12 @@ class Predictor(BasePredictor):
         if seed is None:
             seed = int.from_bytes(os.urandom(2), "big")
         print(f"Using seed: {seed}")
+
+        image = Image.open(image).convert("RGB").resize((512, 512))
+        extra_kwargs = {
+            "mask_image": Image.open(mask).convert("RGB").resize(image.size),
+            "image": image
+        }
 
         seed_everything(seed)
 
@@ -112,7 +125,7 @@ class Predictor(BasePredictor):
         self.text_encoder.get_input_embeddings().weight.data[token_id] = embeds
 
         print("loading StableDiffusionPipeline with updated tokenizer and text_encoder")
-        pipeline = StableDiffusionPipeline.from_pretrained(
+        pipeline = StableDiffusionInpaintPipeline.from_pretrained(
             self.pretrained_model_name_or_path,
             cache_dir="pretrain/diffusers-cache",
             local_files_only=True,
@@ -127,6 +140,7 @@ class Predictor(BasePredictor):
                 [prompt] * num_outputs,
                 num_inference_steps=num_inference_steps,
                 guidance_scale=guidance_scale,
+                **extra_kwargs,
             ).images
 
         output_paths = []

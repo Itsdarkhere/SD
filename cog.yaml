@@ -15,6 +15,6 @@ build:
     - "Pillow==9.2.0"
 
   run:
-    - pip install diffusers==0.12.1
+    - pip install diffusers==0.14.0
 
 predict: "predict.py:Predictor"

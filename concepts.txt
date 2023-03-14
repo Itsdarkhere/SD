@@ -22,7 +22,6 @@ sd-concepts-library/baldi: <baldi>
 sd-concepts-library/spritual-monsters: <spritual-monsters>
 sd-concepts-library/collage3: <Collage3>
 sd-concepts-library/karl-s-lzx-1: <lzx>
-sd-concepts-library/car-battery: <car-battery>
 sd-concepts-library/hours-style: <hours>
 sd-concepts-library/cheburashka: <cheburashka>
 sd-concepts-library/poolrooms: <poolrooms>

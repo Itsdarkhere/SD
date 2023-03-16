@@ -77,7 +77,7 @@ class Predictor(BasePredictor):
         #     cache_dir=repo_id_embeds,
         #     local_files_only=True,
         # )
-        embeds_path = './metng1-5000.pt'
+        embeds_path = './metng1-5000.bin'
         # print(embeds_path)
         # token_path = hf_hub_download(
         #     repo_id=repo_id_embeds,

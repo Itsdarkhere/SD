@@ -106,10 +106,13 @@ class Predictor(BasePredictor):
         print(f"The placeholder token for your concept is {placeholder}.")
         
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")
-
+        print(loaded_learned_embeds.keys())
         # separate token and the embeds
         trained_token = list(loaded_learned_embeds.keys())[0]
         embeds = loaded_learned_embeds[trained_token]
+
+        print(f"{trained_token}: is the trained_token.")
+        print(f"{embeds}: embeds.")
 
         # cast to dtype of text_encoder
         dtype = self.text_encoder.get_input_embeddings().weight.dtype

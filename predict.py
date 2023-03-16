@@ -84,23 +84,25 @@ class Predictor(BasePredictor):
 
         repo_id_embeds = concept.split(":")[0]
         print(repo_id_embeds)
-        embeds_path = hf_hub_download(
-            repo_id=repo_id_embeds,
-            filename="learned_embeds.bin",
-            cache_dir=repo_id_embeds,
-            local_files_only=True,
-        )
-        print(embeds_path)
-        token_path = hf_hub_download(
-            repo_id=repo_id_embeds,
-            filename="token_identifier.txt",
-            cache_dir=repo_id_embeds,
-            local_files_only=True,
-        )
+        # embeds_path = hf_hub_download(
+        #     repo_id=repo_id_embeds,
+        #     filename="learned_embeds.bin",
+        #     cache_dir=repo_id_embeds,
+        #     local_files_only=True,
+        # )
+        embeds_path = './metng1-5000.pt'
+        # print(embeds_path)
+        # token_path = hf_hub_download(
+        #     repo_id=repo_id_embeds,
+        #     filename="token_identifier.txt",
+        #     cache_dir=repo_id_embeds,
+        #     local_files_only=True,
+        # )
         
-        with open(token_path, "r") as file:
-            placeholder = file.read()
+        # with open(token_path, "r") as file:
+        #     placeholder = file.read()
 
+        placeholder = '<metng1>'
         print(f"The placeholder token for your concept is {placeholder}.")
         
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")
@@ -114,7 +116,7 @@ class Predictor(BasePredictor):
         embeds.to(dtype)
 
         # add the token in tokenizer
-        num_added_tokens = self.tokenizer.add_tokens(trained_token)
+        num_added_tokens = self.tokenizer.add_tokens('<metng1>')
         print(f"{num_added_tokens} new tokens added.")
 
         # resize the token embeddings

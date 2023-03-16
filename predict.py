@@ -106,10 +106,12 @@ class Predictor(BasePredictor):
         print(f"The placeholder token for your concept is {placeholder}.")
         
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")
-        print(loaded_learned_embeds.keys())
         # separate token and the embeds
-        trained_token = list(loaded_learned_embeds.keys())[0]
-        embeds = loaded_learned_embeds[trained_token]
+        # trained_token = list(loaded_learned_embeds.keys())[0]
+        string_to_token = loaded_learned_embeds['string_to_token']
+        string_to_param = loaded_learned_embeds['string_to_param']
+        trained_token = list(string_to_token.keys())[0]
+        embeds = string_to_param[trained_token]
 
         print(f"{trained_token}: is the trained_token.")
         print(f"{embeds}: embeds.")

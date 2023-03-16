@@ -105,7 +105,7 @@ class Predictor(BasePredictor):
 
         # cast to dtype of text_encoder
         dtype = self.text_encoder.get_input_embeddings().weight.dtype
-        embeds.to(dtype)
+        embeds = embeds.to(dtype)
 
         # add the token in tokenizer
         num_added_tokens = self.tokenizer.add_tokens('<metng1>')

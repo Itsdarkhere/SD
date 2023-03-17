@@ -70,14 +70,13 @@ class Predictor(BasePredictor):
         seed_everything(seed)
 
         repo_id_embeds = concept.split(":")[0]
-        print(repo_id_embeds)
+        # print(repo_id_embeds)
         # embeds_path = hf_hub_download(
         #     repo_id=repo_id_embeds,
         #     filename="learned_embeds.bin",
         #     cache_dir=repo_id_embeds,
         #     local_files_only=True,
         # )
-        embeds_path = './metng1-5000.bin'
         # print(embeds_path)
         # token_path = hf_hub_download(
         #     repo_id=repo_id_embeds,
@@ -89,23 +88,25 @@ class Predictor(BasePredictor):
         # with open(token_path, "r") as file:
         #     placeholder = file.read()
 
+
+        embeds_path = './metng1-5000.bin'
         placeholder = '<metng1>'
-        print(f"The placeholder token for your concept is {placeholder}.")
         
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")
+        loaded_learned_embeds.keys(), loaded_learned_embeds[placeholder].shape
         # separate token and the embeds
         # trained_token = list(loaded_learned_embeds.keys())[0]
-        string_to_token = loaded_learned_embeds['string_to_token']
-        string_to_param = loaded_learned_embeds['string_to_param']
-        trained_token = list(string_to_token.keys())[0]
-        embeds = string_to_param[trained_token]
+        # string_to_token = loaded_learned_embeds['string_to_token']
+        # string_to_param = loaded_learned_embeds['string_to_param']
+        # trained_token = list(string_to_token.keys())[0]
+        # embeds = string_to_param[trained_token]
 
-        print(f"{trained_token}: is the trained_token.")
-        print(f"{embeds}: embeds.")
+        # print(f"{trained_token}: is the trained_token.")
+        # print(f"{embeds}: embeds.")
 
         # cast to dtype of text_encoder
         dtype = self.text_encoder.get_input_embeddings().weight.dtype
-        embeds = embeds.to(dtype)
+        loaded_learned_embeds[placeholder].to(dtype)
 
         # add the token in tokenizer
         num_added_tokens = self.tokenizer.add_tokens('<metng1>')

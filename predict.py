@@ -75,7 +75,7 @@ class Predictor(BasePredictor):
         # Load the learned concept
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")
         # Separate the token and the embed
-        trained_token = '<metng1>'
+        trained_token = list(loaded_learned_embeds.keys())[0]
         embeds = loaded_learned_embeds[trained_token]
         # string_to_token = loaded_learned_embeds['string_to_token']
         # string_to_param = loaded_learned_embeds['string_to_param']
@@ -87,7 +87,7 @@ class Predictor(BasePredictor):
         dtype = self.text_encoder.get_input_embeddings().weight.dtype
         embeds.to(dtype)
         # Add the token to the tokenizer
-        token = trained_token
+        token = placeholder
         num_added_tokens = self.tokenizer.add_tokens(token)
 
         # Make sure a token was added

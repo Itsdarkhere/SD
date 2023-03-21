@@ -69,40 +69,26 @@ class Predictor(BasePredictor):
 
         seed_everything(seed)
 
-        repo_id_embeds = concept.split(":")[0]
-        # print(repo_id_embeds)
-        # embeds_path = hf_hub_download(
-        #     repo_id=repo_id_embeds,
-        #     filename="learned_embeds.bin",
-        #     cache_dir=repo_id_embeds,
-        #     local_files_only=True,
-        # )
-        # print(embeds_path)
-        # token_path = hf_hub_download(
-        #     repo_id=repo_id_embeds,
-        #     filename="token_identifier.txt",
-        #     cache_dir=repo_id_embeds,
-        #     local_files_only=True,
-        # )
-        
-        # with open(token_path, "r") as file:
-        #     placeholder = file.read()
-
-
-        embeds_path = './metng1-5000.pt'
+        embeds_path = '/metng1-5000.pt'
         placeholder = '<metng1>'
         
+        # Load the learned concept
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")
+        # Separate the token and the embed
         trained_token = list(loaded_learned_embeds.keys())[0]
         embeds = loaded_learned_embeds[trained_token]
+        # Convert the embed to the same dtype as the text_encoder
         dtype = self.text_encoder.get_input_embeddings().weight.dtype
         embeds.to(dtype)
+        # Add the token to the tokenizer
         token = token if token is not None else trained_token
         num_added_tokens = tokenizer.add_tokens(token)
 
+        # Make sure a token was added
         if num_added_tokens == 0:
             raise ValueError(f"The tokenizer already contains the token {token}.")
 
+        # Add the embed to the text_encoder
         self.text_encoder.resize_token_embeddings(len(tokenizer))
         token_id = tokenizer.convert_tokens_to_ids(token)
         self.text_encoder.get_input_embeddings().weight.data[token_id] = embeds

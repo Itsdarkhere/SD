@@ -96,7 +96,7 @@ class Predictor(BasePredictor):
 
         # Add the embed to the text_encoder
         self.text_encoder.resize_token_embeddings(len(tokenizer))
-        token_id = tokenizer.convert_tokens_to_ids(token)
+        token_id = self.tokenizer.convert_tokens_to_ids(token)
         self.text_encoder.get_input_embeddings().weight.data[token_id] = embeds
 
         print("loading StableDiffusionPipeline with updated tokenizer and text_encoder")

@@ -89,35 +89,23 @@ class Predictor(BasePredictor):
         #     placeholder = file.read()
 
 
-        embeds_path = './metng1-5000.bin'
+        embeds_path = './metng1-5000.pt'
         placeholder = '<metng1>'
         
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")
-        loaded_learned_embeds.keys(), loaded_learned_embeds[placeholder].shape
-        # separate token and the embeds
-        # trained_token = list(loaded_learned_embeds.keys())[0]
-        # string_to_token = loaded_learned_embeds['string_to_token']
-        # string_to_param = loaded_learned_embeds['string_to_param']
-        # trained_token = list(string_to_token.keys())[0]
-        # embeds = string_to_param[trained_token]
+        trained_token = list(loaded_learned_embeds.keys())[0]
+        embeds = loaded_learned_embeds[trained_token]
+        dtype = text_encoder.get_input_embeddings().weight.dtype
+        embeds.to(dtype)
+        token = token if token is not None else trained_token
+        num_added_tokens = tokenizer.add_tokens(token)
 
-        # print(f"{trained_token}: is the trained_token.")
-        # print(f"{embeds}: embeds.")
+        if num_added_tokens == 0:
+            raise ValueError(f"The tokenizer already contains the token {token}.")
 
-        # cast to dtype of text_encoder
-        dtype = self.text_encoder.get_input_embeddings().weight.dtype
-        loaded_learned_embeds[placeholder].to(dtype)
-
-        # add the token in tokenizer
-        num_added_tokens = self.tokenizer.add_tokens('<metng1>')
-        print(f"{num_added_tokens} new tokens added.")
-
-        # resize the token embeddings
-        self.text_encoder.resize_token_embeddings(len(self.tokenizer))
-
-        # get the id for the token and assign the embeds
-        token_id = self.tokenizer.convert_tokens_to_ids(trained_token)
-        self.text_encoder.get_input_embeddings().weight.data[token_id] = embeds
+        text_encoder.resize_token_embeddings(len(tokenizer))
+        token_id = tokenizer.convert_tokens_to_ids(token)
+        text_encoder.get_input_embeddings().weight.data[token_id] = embeds
 
         print("loading StableDiffusionPipeline with updated tokenizer and text_encoder")
         pipeline = StableDiffusionPipeline.from_pretrained(

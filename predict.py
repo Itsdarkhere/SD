@@ -69,7 +69,7 @@ class Predictor(BasePredictor):
 
         seed_everything(seed)
 
-        embeds_path = '/metng1-5000.pt'
+        embeds_path = './metng1-5000.pt'
         placeholder = '<metng1>'
         
         # Load the learned concept

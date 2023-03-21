@@ -88,14 +88,14 @@ class Predictor(BasePredictor):
         embeds.to(dtype)
         # Add the token to the tokenizer
         token = trained_token
-        num_added_tokens = tokenizer.add_tokens(token)
+        num_added_tokens = self.tokenizer.add_tokens(token)
 
         # Make sure a token was added
         if num_added_tokens == 0:
             raise ValueError(f"The tokenizer already contains the token {token}.")
 
         # Add the embed to the text_encoder
-        self.text_encoder.resize_token_embeddings(len(tokenizer))
+        self.text_encoder.resize_token_embeddings(len(self.tokenizer))
         token_id = self.tokenizer.convert_tokens_to_ids(token)
         self.text_encoder.get_input_embeddings().weight.data[token_id] = embeds
 

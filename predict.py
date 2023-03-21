@@ -87,7 +87,7 @@ class Predictor(BasePredictor):
         dtype = self.text_encoder.get_input_embeddings().weight.dtype
         embeds.to(dtype)
         # Add the token to the tokenizer
-        token = token if token is not None else trained_token
+        token = trained_token
         num_added_tokens = tokenizer.add_tokens(token)
 
         # Make sure a token was added

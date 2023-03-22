@@ -110,7 +110,7 @@ class Predictor(BasePredictor):
             self.pretrained_model_name_or_path,
             cache_dir="pretrain/diffusers-cache",
             local_files_only=True,
-            torch_dtype=torch.float16,
+            # torch_dtype=torch.float16,
             text_encoder=self.text_encoder,
             tokenizer=self.tokenizer,
         ).to("cuda")

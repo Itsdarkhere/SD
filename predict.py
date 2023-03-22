@@ -18,7 +18,7 @@ class Predictor(BasePredictor):
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading pipeline...")
 
-        self.pretrained_model_name_or_path = "stabilityai/stable-diffusion-2-1"
+        self.pretrained_model_name_or_path = "CompVis/stable-diffusion-v1-4"
 
         self.tokenizer = CLIPTokenizer.from_pretrained(
             self.pretrained_model_name_or_path,

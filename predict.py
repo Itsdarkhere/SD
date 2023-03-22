@@ -116,12 +116,13 @@ class Predictor(BasePredictor):
         ).to("cuda")
 
         print("Generating images with the learned concept")
-        with torch.autocast("cuda"):
-            images = pipeline(
-                [prompt] * num_outputs,
-                num_inference_steps=num_inference_steps,
-                guidance_scale=guidance_scale,
-            ).images
+        images = pipeline(
+            prompt=[prompt] * num_outputs,
+            width=512,
+            height=512,
+            num_inference_steps=num_inference_steps,
+            guidance_scale=guidance_scale,
+        ).images
 
         output_paths = []
         for i, image in enumerate(images):

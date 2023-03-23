@@ -76,14 +76,14 @@ class Predictor(BasePredictor):
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")
 
         # Separate the token and the embed
-        trained_token = list(loaded_learned_embeds.keys())[0]
-        embeds = loaded_learned_embeds[trained_token]
-        # string_to_token = loaded_learned_embeds['string_to_token']
-        # string_to_param = loaded_learned_embeds['string_to_param']
-        # trained_token = list(string_to_token.keys())[0]
-        # embeds = string_to_param[trained_token]
-        # embeds = embeds.detach()
-        # embeds = embeds[1]
+        # trained_token = list(loaded_learned_embeds.keys())[0]
+        # embeds = loaded_learned_embeds[trained_token]
+        string_to_token = loaded_learned_embeds['string_to_token']
+        string_to_param = loaded_learned_embeds['string_to_param']
+        trained_token = list(string_to_token.keys())[0]
+        embeds = string_to_param[trained_token]
+        embeds = embeds.detach()
+        embeds = embeds[1]
 
         # Convert the embed to the same dtype as the text_encoder
         dtype = self.text_encoder.get_input_embeddings().weight.dtype

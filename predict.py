@@ -74,8 +74,9 @@ class Predictor(BasePredictor):
             seed = int.from_bytes(os.urandom(2), "big")
         print(f"Using seed: {seed}")
 
+        image = Image.open(image).convert("RGB").resize((512, 512))
         extra_kwargs = {
-            "mask_image": Image.open(mask).convert("RGB").resize(image.size),
+            "mask_image": Image.open(mask).convert("RGB").resize((512, 512)),
             "image": image
         }
 

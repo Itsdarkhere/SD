@@ -82,8 +82,8 @@ class Predictor(BasePredictor):
 
         seed_everything(seed)
 
-        embeds_path = './metng1-5000.pt'
-        placeholder = '<metng1>'
+        embeds_path = './bonzi.pt'
+        placeholder = '<bonzi>'
         
         # Load the learned concept
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")

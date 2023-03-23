@@ -123,7 +123,7 @@ class Predictor(BasePredictor):
             self.pretrained_model_name_or_path,
             cache_dir="pretrain/diffusers-cache",
             local_files_only=True,
-            # torch_dtype=torch.float16,
+            torch_dtype=torch.float16,
             text_encoder=self.text_encoder,
             tokenizer=self.tokenizer,
         ).to("cuda")
@@ -133,6 +133,8 @@ class Predictor(BasePredictor):
             prompt=[prompt] * num_outputs,
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
+            width=512,
+            height=512,
             # **extra_kwargs,
         ).images
 

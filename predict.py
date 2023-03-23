@@ -3,11 +3,11 @@ from typing import List
 
 import torch
 from pytorch_lightning import seed_everything
-from diffusers import StableDiffusionInpaintPipeline
+from diffusers import StableDiffusionPipeline
 from transformers import CLIPTextModel, CLIPTokenizer
 from huggingface_hub import hf_hub_download
 from cog import BasePredictor, Path, Input
-from PIL import Image
+# from PIL import Image
 
 
 with open("concepts.txt") as infile:
@@ -19,7 +19,7 @@ class Predictor(BasePredictor):
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading pipeline...")
 
-        self.pretrained_model_name_or_path = "stabilityai/stable-diffusion-2-inpainting"
+        self.pretrained_model_name_or_path = "stabilityai/stable-diffusion-2-1"
 
         self.tokenizer = CLIPTokenizer.from_pretrained(
             self.pretrained_model_name_or_path,
@@ -46,12 +46,12 @@ class Predictor(BasePredictor):
             description="Input prompt with <your-chosen-concept>.",
             default="a <cat-toy> themed lunchbox",
         ),
-        image: Path = Input(
-            description="Inital image to generate variations of. Supproting images size with 512x512",
-        ),
-        mask: Path = Input(
-            description="Black and white image to use as mask for inpainting over the image provided. White pixels are inpainted and black pixels are preserved",
-        ),
+        # image: Path = Input(
+        #     description="Inital image to generate variations of. Supproting images size with 512x512",
+        # ),
+        # mask: Path = Input(
+        #     description="Black and white image to use as mask for inpainting over the image provided. White pixels are inpainted and black pixels are preserved",
+        # ),
         num_outputs: int = Input(
             description="Number of images to output", choices=[1, 4], default=1
         ),
@@ -74,16 +74,16 @@ class Predictor(BasePredictor):
             seed = int.from_bytes(os.urandom(2), "big")
         print(f"Using seed: {seed}")
 
-        image = Image.open(image).convert("RGB").resize((512, 512))
-        extra_kwargs = {
-            "mask_image": Image.open(mask).convert("RGB").resize((512, 512)),
-            "image": image
-        }
+        # image = Image.open(image).convert("RGB").resize((512, 512))
+        # extra_kwargs = {
+        #     "mask_image": Image.open(mask).convert("RGB").resize((512, 512)),
+        #     "image": image
+        # }
 
         seed_everything(seed)
 
         embeds_path = './Lavastyle.pt'
-        placeholder = 'Lavastyle'
+        placeholder = '<Lavastyle>'
         
         # Load the learned concept
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")
@@ -119,7 +119,7 @@ class Predictor(BasePredictor):
         self.text_encoder.get_input_embeddings().weight.data[token_id] = embeds
 
         print("loading StableDiffusionInpaintPipeline with updated tokenizer and text_encoder")
-        pipeline = StableDiffusionInpaintPipeline.from_pretrained(
+        pipeline = StableDiffusionPipeline.from_pretrained(
             self.pretrained_model_name_or_path,
             cache_dir="pretrain/diffusers-cache",
             local_files_only=True,
@@ -133,7 +133,7 @@ class Predictor(BasePredictor):
             prompt=[prompt] * num_outputs,
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
-            **extra_kwargs,
+            # **extra_kwargs,
         ).images
 
         output_paths = []

@@ -80,7 +80,7 @@ class Predictor(BasePredictor):
         #     "image": image
         # }
 
-        seed_everything(seed)
+        # seed_everything(seed)
 
         embeds_path = './Lavastyle.pt'
         placeholder = '<Lavastyle>'
@@ -119,20 +119,23 @@ class Predictor(BasePredictor):
         self.text_encoder.get_input_embeddings().weight.data[token_id] = embeds
 
         print("loading StableDiffusionInpaintPipeline with updated tokenizer and text_encoder")
+        
         pipeline = StableDiffusionPipeline.from_pretrained(
             self.pretrained_model_name_or_path,
             cache_dir="pretrain/diffusers-cache",
             local_files_only=True,
-            torch_dtype=torch.float16,
+            # torch_dtype=torch.float16,
             text_encoder=self.text_encoder,
             tokenizer=self.tokenizer,
         ).to("cuda")
 
         print("Generating images with the learned concept")
+        generator = torch.Generator("cuda").manual_seed(seed)
         images = pipeline(
             prompt=[prompt] * num_outputs,
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
+            generator=generator,
             width=512,
             height=512,
             # **extra_kwargs,

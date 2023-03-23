@@ -83,7 +83,7 @@ class Predictor(BasePredictor):
         seed_everything(seed)
 
         embeds_path = './Lavastyle.pt'
-        placeholder = '<Lavastyle>'
+        placeholder = 'Lavastyle'
         
         # Load the learned concept
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")

@@ -18,7 +18,7 @@ args = parser.parse_args()
 os.makedirs("pretrain/diffusers-cache", exist_ok=True)
 os.makedirs("pretrain/tokenizer", exist_ok=True)
 os.makedirs("pretrain/text_encoder", exist_ok=True)
-pretrained_model_name_or_path = "stabilityai/stable-diffusion-2-1"
+pretrained_model_name_or_path = "CompVis/stable-diffusion-v1-4"
 tokenizer = CLIPTokenizer.from_pretrained(
     pretrained_model_name_or_path,
     subfolder="tokenizer",

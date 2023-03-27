@@ -18,7 +18,7 @@ class Predictor(BasePredictor):
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading pipeline...")
 
-        self.pretrained_model_name_or_path = "stabilityai/stable-diffusion-2-1"
+        self.pretrained_model_name_or_path = "CompVis/stable-diffusion-v1-4"
 
         self.tokenizer = CLIPTokenizer.from_pretrained(
             self.pretrained_model_name_or_path,
@@ -81,21 +81,21 @@ class Predictor(BasePredictor):
 
         # seed_everything(seed)
 
-        embeds_path = './Lavastyle.pt'
-        placeholder = '<LAVASTYLE>'
+        embeds_path = './bonzi.pt'
+        placeholder = '<bonzi>'
         
         # Load the learned concept
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")
 
         # Separate the token and the embed
-        # trained_token = list(loaded_learned_embeds.keys())[0]
-        # embeds = loaded_learned_embeds[trained_token]
-        string_to_token = loaded_learned_embeds['string_to_token']
-        string_to_param = loaded_learned_embeds['string_to_param']
-        trained_token = list(string_to_token.keys())[0]
-        embeds = string_to_param[trained_token]
-        embeds = embeds.detach()
-        embeds = embeds[1]
+        trained_token = list(loaded_learned_embeds.keys())[0]
+        embeds = loaded_learned_embeds[trained_token]
+        # string_to_token = loaded_learned_embeds['string_to_token']
+        # string_to_param = loaded_learned_embeds['string_to_param']
+        # trained_token = list(string_to_token.keys())[0]
+        # embeds = string_to_param[trained_token]
+        # embeds = embeds.detach()
+        # embeds = embeds[1]
 
         # Convert the embed to the same dtype as the text_encoder
         dtype = self.text_encoder.get_input_embeddings().weight.dtype

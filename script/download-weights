@@ -8,6 +8,11 @@ from diffusers import StableDiffusionPipeline
 from transformers import CLIPTextModel, CLIPTokenizer
 
 parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--auth_token",
+    required=True,
+    help="Authentication token from Huggingface for downloaging weights.",
+)
 
 args = parser.parse_args()
 os.makedirs("pretrain/diffusers-cache", exist_ok=True)

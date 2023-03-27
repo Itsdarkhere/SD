@@ -5,7 +5,6 @@ import torch
 from pytorch_lightning import seed_everything
 from diffusers import StableDiffusionPipeline
 from transformers import CLIPTextModel, CLIPTokenizer
-from huggingface_hub import hf_hub_download
 from cog import BasePredictor, Path, Input
 # from PIL import Image
 

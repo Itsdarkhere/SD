@@ -135,8 +135,8 @@ class Predictor(BasePredictor):
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
             generator=generator,
-            width=768,
-            height=768,
+            width=512,
+            height=512,
             # **extra_kwargs,
         ).images
 

@@ -18,7 +18,7 @@ class Predictor(BasePredictor):
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading pipeline...")
 
-        self.pretrained_model_name_or_path = "CompVis/stable-diffusion-v1-4"
+        self.pretrained_model_name_or_path = "stabilityai/stable-diffusion-2"
 
         self.tokenizer = CLIPTokenizer.from_pretrained(
             self.pretrained_model_name_or_path,
@@ -81,8 +81,8 @@ class Predictor(BasePredictor):
 
         # seed_everything(seed)
 
-        embeds_path = './bonzi.pt'
-        placeholder = '<bonzi>'
+        embeds_path = './Lavastyle.pt'
+        placeholder = '<LAVASTYLE>'
         
         # Load the learned concept
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")
@@ -135,8 +135,8 @@ class Predictor(BasePredictor):
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
             generator=generator,
-            width=512,
-            height=512,
+            width=768,
+            height=768,
             # **extra_kwargs,
         ).images
 

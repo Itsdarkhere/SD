@@ -3,7 +3,15 @@ from typing import List
 
 import torch
 from pytorch_lightning import seed_everything
-from diffusers import StableDiffusionPipeline
+from diffusers import (
+    StableDiffusionPipeline,
+    PNDMScheduler,
+    LMSDiscreteScheduler,
+    DDIMScheduler,
+    EulerDiscreteScheduler,
+    EulerAncestralDiscreteScheduler,
+    DPMSolverMultistepScheduler,
+)
 from transformers import CLIPTextModel, CLIPTokenizer
 from cog import BasePredictor, Path, Input
 # from PIL import Image
@@ -62,6 +70,18 @@ class Predictor(BasePredictor):
         ),
         guidance_scale: float = Input(
             description="Scale for classifier-free guidance", ge=1, le=20, default=7.5
+        ),
+        scheduler: str = Input(
+            default="DPMSolverMultistep",
+            choices=[
+                "DDIM",
+                "K_EULER",
+                "DPMSolverMultistep",
+                "K_EULER_ANCESTRAL",
+                "PNDM",
+                "KLMS",
+            ],
+            description="Choose a scheduler.",
         ),
         seed: int = Input(
             description="Random seed. Leave blank to randomize the seed", default=None
@@ -128,6 +148,8 @@ class Predictor(BasePredictor):
             tokenizer=self.tokenizer,
         ).to("cuda")
 
+        pipeline.scheduler = make_scheduler(scheduler, pipeline.scheduler.config)
+
         print("Generating images with the learned concept")
         generator = torch.Generator("cuda").manual_seed(seed)
         images = pipeline(
@@ -147,3 +169,14 @@ class Predictor(BasePredictor):
             output_paths.append(Path(output_path))
 
         return output_paths
+
+
+def make_scheduler(name, config):
+    return {
+        "PNDM": PNDMScheduler.from_config(config),
+        "KLMS": LMSDiscreteScheduler.from_config(config),
+        "DDIM": DDIMScheduler.from_config(config),
+        "K_EULER": EulerDiscreteScheduler.from_config(config),
+        "K_EULER_ANCESTRAL": EulerAncestralDiscreteScheduler.from_config(config),
+        "DPMSolverMultistep": DPMSolverMultistepScheduler.from_config(config),
+    }[name]

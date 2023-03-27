@@ -83,6 +83,15 @@ class Predictor(BasePredictor):
             ],
             description="Choose a scheduler.",
         ),
+        type: int = Input(
+            default=0,
+            choices=[
+                0,
+                1,
+                2,
+            ],
+            description="Choose how to load embedding, some work some dont",
+        ),
         seed: int = Input(
             description="Random seed. Leave blank to randomize the seed", default=None
         ),
@@ -102,33 +111,30 @@ class Predictor(BasePredictor):
         # seed_everything(seed)
 
         embeds_path = './knollingcase.pt'
-        placeholder = 'knollingcase'
+        token = 'knollingcase'
         
         # Load the learned concept
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")
 
         # Separate the token and the embed
-        # Type 0
-        # trained_token = list(loaded_learned_embeds.keys())[0]
-        # embeds = loaded_learned_embeds[trained_token]
-
-        # Type 1 
-        # string_to_token = loaded_learned_embeds['string_to_token']
-        # string_to_param = loaded_learned_embeds['string_to_param']
-        # trained_token = list(string_to_token.keys())[0]
-        # embeds = string_to_param[trained_token]
-        # embeds = embeds.detach()
-        # embeds = embeds[1]
-
-        # Type 2
-        embeds = loaded_learned_embeds[0]
-
+        if (type == 0):
+            trained_token = list(loaded_learned_embeds.keys())[0]
+            embeds = loaded_learned_embeds[trained_token]
+        elif(type == 1):    
+            string_to_token = loaded_learned_embeds['string_to_token']
+            string_to_param = loaded_learned_embeds['string_to_param']
+            trained_token = list(string_to_token.keys())[0]
+            embeds = string_to_param[trained_token]
+            embeds = embeds.detach()
+            embeds = embeds[1]
+        elif(type == 2):
+            embeds = loaded_learned_embeds[0]
+        
         # Convert the embed to the same dtype as the text_encoder
         dtype = self.text_encoder.get_input_embeddings().weight.dtype
         embeds.to(dtype)
 
         # Add the token to the tokenizer
-        token = placeholder
         num_added_tokens = self.tokenizer.add_tokens(token)
         print(f"{num_added_tokens} new tokens added.")
 

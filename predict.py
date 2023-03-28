@@ -12,6 +12,7 @@ from diffusers import (
     EulerAncestralDiscreteScheduler,
     DPMSolverMultistepScheduler,
 )
+from PIL import Image
 from transformers import CLIPTextModel, CLIPTokenizer
 from cog import BasePredictor, Path, Input
 # from PIL import Image

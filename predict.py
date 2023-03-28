@@ -89,6 +89,7 @@ class Predictor(BasePredictor):
                 0,
                 1,
                 2,
+                3,
             ],
             description="Choose how to load embedding, some work some dont",
         ),
@@ -116,6 +117,7 @@ class Predictor(BasePredictor):
         # Load the learned concept
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")
 
+        print(f"{loaded_learned_embeds} loaded_learned_embeds.")
         # Separate the token and the embed
         if (type == 0):
             trained_token = list(loaded_learned_embeds.keys())[0]
@@ -129,6 +131,13 @@ class Predictor(BasePredictor):
             embeds = embeds[1]
         elif(type == 2):
             embeds = loaded_learned_embeds[0]
+        elif(type == 3):
+            string_to_token = loaded_learned_embeds['string_to_token']
+            string_to_param = loaded_learned_embeds['string_to_param']
+            trained_token = list(string_to_token.keys())[0]
+            print(f"{trained_token} trained_token.")
+            embeds = string_to_param[trained_token]
+
         
         # Convert the embed to the same dtype as the text_encoder
         dtype = self.text_encoder.get_input_embeddings().weight.dtype

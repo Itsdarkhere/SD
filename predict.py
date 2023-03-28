@@ -4,7 +4,7 @@ from typing import List
 import torch
 from pytorch_lightning import seed_everything
 from diffusers import (
-    StableDiffusionPipeline,
+    StableDiffusionInpaintPipeline,
     PNDMScheduler,
     LMSDiscreteScheduler,
     DDIMScheduler,
@@ -26,7 +26,7 @@ class Predictor(BasePredictor):
         """Load the model into memory to make running multiple predictions efficient"""
         print("Loading pipeline...")
 
-        self.pretrained_model_name_or_path = "stabilityai/stable-diffusion-2-1"
+        self.pretrained_model_name_or_path = "stabilityai/stable-diffusion-2-inpainting"
 
         self.tokenizer = CLIPTokenizer.from_pretrained(
             self.pretrained_model_name_or_path,
@@ -53,12 +53,12 @@ class Predictor(BasePredictor):
             description="Input prompt with <your-chosen-concept>.",
             default="a <cat-toy> themed lunchbox",
         ),
-        # image: Path = Input(
-        #     description="Inital image to generate variations of. Supproting images size with 512x512",
-        # ),
-        # mask: Path = Input(
-        #     description="Black and white image to use as mask for inpainting over the image provided. White pixels are inpainted and black pixels are preserved",
-        # ),
+        image: Path = Input(
+            description="Inital image to generate variations of. Supproting images size with 512x512",
+        ),
+        mask: Path = Input(
+            description="Black and white image to use as mask for inpainting over the image provided. White pixels are inpainted and black pixels are preserved",
+        ),
         num_outputs: int = Input(
             description="Number of images to output", choices=[1, 4], default=1
         ),
@@ -93,16 +93,15 @@ class Predictor(BasePredictor):
             seed = int.from_bytes(os.urandom(2), "big")
         print(f"Using seed: {seed}")
 
-        # image = Image.open(image).convert("RGB").resize((512, 512))
-        # extra_kwargs = {
-        #     "mask_image": Image.open(mask).convert("RGB").resize((512, 512)),
-        #     "image": image
-        # }
+        image = Image.open(image).convert("RGB").resize((512, 512))
+        extra_kwargs = {
+            "mask_image": Image.open(mask).convert("RGB").resize((512, 512)),
+            "image": image
+        }
 
         # seed_everything(seed)
 
         embeds_path = './knollingcase.pt'
-        token = 'knollingcase'
         
         # Load the learned concept
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")
@@ -122,7 +121,7 @@ class Predictor(BasePredictor):
         # placeholder_token Needs to be in the prompt
         print("loading StableDiffusionInpaintPipeline with updated tokenizer and text_encoder")
         
-        pipeline = StableDiffusionPipeline.from_pretrained(
+        pipeline = StableDiffusionInpaintPipeline.from_pretrained(
             self.pretrained_model_name_or_path,
             cache_dir="pretrain/diffusers-cache",
             local_files_only=True,
@@ -133,16 +132,16 @@ class Predictor(BasePredictor):
 
         pipeline.scheduler = make_scheduler(scheduler, pipeline.scheduler.config)
 
-        print("Generating images with the learned concept")
+        print(f"{placeholder_token} placeholder_token")
         generator = torch.Generator("cuda").manual_seed(seed)
         images = pipeline(
-            prompt=[f"fighter jet flying above the clouds, micro-details, photorealism, photorealistic, scifi case, {placeholder_token}"] * num_outputs,
+            prompt=[prompt] * num_outputs,
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
             generator=generator,
             width=512,
             height=512,
-            # **extra_kwargs,
+            **extra_kwargs,
         ).images
 
         output_paths = []

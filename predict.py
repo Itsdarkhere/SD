@@ -119,6 +119,7 @@ class Predictor(BasePredictor):
             token_id = self.tokenizer.convert_tokens_to_ids(new_token)
             self.text_encoder.get_input_embeddings().weight.data[token_id] = emb
 
+        # placeholder_token Needs to be in the prompt
         print("loading StableDiffusionInpaintPipeline with updated tokenizer and text_encoder")
         
         pipeline = StableDiffusionPipeline.from_pretrained(
@@ -135,7 +136,7 @@ class Predictor(BasePredictor):
         print("Generating images with the learned concept")
         generator = torch.Generator("cuda").manual_seed(seed)
         images = pipeline(
-            prompt=[prompt] * num_outputs,
+            prompt=[f"fighter jet flying above the clouds, micro-details, photorealism, photorealistic, scifi case, {placeholder_token}"] * num_outputs,
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
             generator=generator,

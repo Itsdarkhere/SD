@@ -111,7 +111,7 @@ class Predictor(BasePredictor):
         # Separate the token and the embed
         embeddings = next(iter(loaded_learned_embeds['string_to_param'].values()))
         placeholder_token = ""
-        for i, emb in enumreate(embeddings):
+        for i, emb in enumerate(embeddings):
             new_token = f"_s{i+1}"
             placeholder_token += new_token
             self.tokenizer.add_tokens(new_token)

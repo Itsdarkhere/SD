@@ -100,7 +100,7 @@ class Predictor(BasePredictor):
             "image": image
         }
 
-        embeds_path = './knollingcase.pt'
+        embeds_path = './metngrom.pt'
         
         # Load the learned concept
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")

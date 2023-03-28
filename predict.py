@@ -83,16 +83,6 @@ class Predictor(BasePredictor):
             ],
             description="Choose a scheduler.",
         ),
-        type: int = Input(
-            default=0,
-            choices=[
-                0,
-                1,
-                2,
-                3,
-            ],
-            description="Choose how to load embedding, some work some dont",
-        ),
         seed: int = Input(
             description="Random seed. Leave blank to randomize the seed", default=None
         ),
@@ -119,44 +109,15 @@ class Predictor(BasePredictor):
 
         print(f"{loaded_learned_embeds} loaded_learned_embeds.")
         # Separate the token and the embed
-        if (type == 0):
-            trained_token = list(loaded_learned_embeds.keys())[0]
-            embeds = loaded_learned_embeds[trained_token]
-        elif(type == 1):    
-            string_to_token = loaded_learned_embeds['string_to_token']
-            string_to_param = loaded_learned_embeds['string_to_param']
-            trained_token = list(string_to_token.keys())[0]
-            embeds = string_to_param[trained_token]
-            embeds = embeds.detach()
-            embeds = embeds[1]
-        elif(type == 2):
-            embeds = loaded_learned_embeds[0]
-        elif(type == 3):
-            string_to_token = loaded_learned_embeds['string_to_token']
-            string_to_param = loaded_learned_embeds['string_to_param']
-            trained_token = list(string_to_token.keys())[0]
-            print(f"{trained_token} trained_token.")
-            embeds = string_to_param[trained_token]
-
-        
-        # Convert the embed to the same dtype as the text_encoder
-        dtype = self.text_encoder.get_input_embeddings().weight.dtype
-        embeds.to(dtype)
-
-        # Add the token to the tokenizer
-        num_added_tokens = self.tokenizer.add_tokens(token)
-        print(f"{num_added_tokens} new tokens added.")
-
-        # Make sure a token was added
-        # if num_added_tokens == 0:
-        #     raise ValueError(f"The tokenizer already contains the token {token}.")
-
-        # Resize token embeddings
-        self.text_encoder.resize_token_embeddings(len(self.tokenizer))
-
-        # Get id for the token and assign the embedding to it
-        token_id = self.tokenizer.convert_tokens_to_ids(token)
-        self.text_encoder.get_input_embeddings().weight.data[token_id] = embeds
+        embeddings = next(iter(loaded_learned_embeds['string_to_param'].values()))
+        placeholder_token = ""
+        for i, emb in enumreate(embeddings):
+            new_token = f"_s{i+1}"
+            placeholder_token += new_token
+            self.tokenizer.add_tokens(new_token)
+            self.text_encoder.resize_token_embeddings(len(self.tokenizer))
+            token_id = self.tokenizer.convert_tokens_to_ids(new_token)
+            self.text_encoder.get_input_embeddings().weight.data[token_id] = emb
 
         print("loading StableDiffusionInpaintPipeline with updated tokenizer and text_encoder")
         

@@ -61,7 +61,10 @@ class Predictor(BasePredictor):
             description="Black and white image to use as mask for inpainting over the image provided. White pixels are inpainted and black pixels are preserved",
         ),
         num_outputs: int = Input(
-            description="Number of images to output", choices=[1, 4], default=1
+            description="Number of images to output",
+            ge=1,
+            le=8,
+            default=1,
         ),
         num_inference_steps: int = Input(
             description="Number of denoising steps for each image generated from the prompt",

@@ -100,7 +100,7 @@ class Predictor(BasePredictor):
             "image": image
         }
 
-        embeds_path = './openoff1.pt'
+        embeds_path = './phnbth.pt'
         
         # Load the learned concept
         loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")

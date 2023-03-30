@@ -18,10 +18,6 @@ from cog import BasePredictor, Path, Input
 # from PIL import Image
 
 
-with open("concepts.txt") as infile:
-    CONCEPTS = [line.rstrip() for line in infile]
-
-
 class Predictor(BasePredictor):
     def setup(self):
         """Load the model into memory to make running multiple predictions efficient"""
@@ -46,8 +42,18 @@ class Predictor(BasePredictor):
     def predict(
         self,
         concept: str = Input(
-            choices=CONCEPTS,
-            default="sd-concepts-library/cat-toy: <cat-toy>",
+            choices=[
+                'bedroom9000.pt',
+                'bedroom9800.pt',
+                'boardroom6000.pt',
+                'boardroom10000.pt',
+                'empty5000.pt',
+                'living6000.pt',
+                'living10000.pt',
+                'office3600.pt',
+                'openoffice8200.pt',
+            ],
+            default="bedroom9000.pt",
             description="Choose a pretrained concept. The Placeholder is shown in <your-chosen-concept>.",
         ),
         prompt: str = Input(
@@ -103,17 +109,36 @@ class Predictor(BasePredictor):
             "image": image
         }
 
-        embeds_path = './pddsghsdjg.pt'
+        # embeds_path = './pddsghsdjg.pt'
         
         # Load the learned concept
-        loaded_learned_embeds = torch.load(embeds_path, map_location="cpu")
+        loaded_learned_embeds = torch.load(concept, map_location="cpu")
 
-        print(f"{loaded_learned_embeds} loaded_learned_embeds.")
+        concept_letter = ""
+        if (concept == 'bedroom9000.pt'):
+            concept_letter = 'a'
+        elif (concept == 'bedroom9800.pt'):
+            concept_letter = 'b'
+        elif (concept == 'boardroom6000.pt'):
+            concept_letter = 'c'
+        elif (concept == 'boardroom10000.pt'):
+            concept_letter = 'd'
+        elif (concept == 'empty5000.pt'):
+            concept_letter = 'e'
+        elif (concept == 'living6000.pt'):
+            concept_letter = 'f'
+        elif (concept == 'living10000.pt'):
+            concept_letter = 'g'
+        elif (concept == 'office3600.pt'):
+            concept_letter = 'h'
+        elif (concept == 'openoffice8200.pt'):
+            concept_letter = 'i'
+
         # Separate the token and the embed
         embeddings = next(iter(loaded_learned_embeds['string_to_param'].values()))
         placeholder_token = ""
         for i, emb in enumerate(embeddings):
-            new_token = f"_s{i+1}"
+            new_token = f"_{concept_letter}{i+1}"
             placeholder_token += new_token
             self.tokenizer.add_tokens(new_token)
             self.text_encoder.resize_token_embeddings(len(self.tokenizer))
@@ -136,6 +161,7 @@ class Predictor(BasePredictor):
 
         print(f"{placeholder_token} placeholder_token")
         generator = torch.Generator("cuda").manual_seed(seed)
+
         images = pipeline(
             prompt=[prompt] * num_outputs,
             num_inference_steps=num_inference_steps,

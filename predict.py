@@ -144,10 +144,14 @@ class Predictor(BasePredictor):
             concept_letter = 'f'
         elif (concept == 'living10000.pt'):
             concept_letter = 'g'
-        elif (concept == 'office3600.pt'):
+        elif (concept == 'office10000.pt'):
             concept_letter = 'h'
-        elif (concept == 'openoffice8200.pt'):
+        elif (concept == 'privateoffice8200.pt'):
             concept_letter = 'i'
+        elif (concept == 'office13200.pt'):
+            concept_letter = 'j'
+        elif (concept == 'privateoffice10000.pt'):
+            concept_letter = 'k'
 
         # Separate the token and the embed
         embeddings = next(iter(loaded_learned_embeds['string_to_param'].values()))

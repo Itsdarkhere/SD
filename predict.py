@@ -50,7 +50,6 @@ class Predictor(BasePredictor):
                 'empty5000.pt',
                 'living6000.pt',
                 'living10000.pt',
-                'office3600.pt',
                 'office10000.pt',
                 'office13200.pt',
                 'privateoffice8200.pt',

@@ -168,6 +168,9 @@ class Predictor(BasePredictor):
         embeddings = self.embeddings_dict[concept]
         placeholder_token = self.placeholder_tokens_dict[concept]
 
+        # Insert the placeholder token into the prompt
+        prompt = prompt.replace("<your-chosen-concept>", placeholder_token)
+
         # placeholder_token Needs to be in the prompt
         print("loading StableDiffusionInpaintPipeline with updated tokenizer and text_encoder")
         

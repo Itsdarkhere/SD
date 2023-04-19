@@ -58,18 +58,19 @@ class Predictor(BasePredictor):
         self.placeholder_tokens_dict = {}
         for concept in self.concepts:
             loaded_learned_embeds = torch.load(concept, map_location="cpu")
-            self.embeddings_dict[concept] = next(iter(loaded_learned_embeds['string_to_param'].values()))
+            embeds = next(iter(loaded_learned_embeds['string_to_param'].values()))
+            self.embeddings_dict[concept] = embeds
 
             # Add tokens and update the text encoder for each concept
             concept_letter = concept[0]
             placeholder_token = ""
-            for i, emb in enumerate(embeddings):
+            for i, emb in enumerate(embeds):
                 new_token = f"_{concept_letter}{i+1}"
                 placeholder_token += new_token
                 self.tokenizer.add_tokens(new_token)
             self.text_encoder.resize_token_embeddings(len(self.tokenizer))
             
-            for i, emb in enumerate(embeddings):
+            for i, emb in enumerate(embeds):
                 new_token = f"_{concept_letter}{i+1}"
                 token_id = self.tokenizer.convert_tokens_to_ids(new_token)
                 self.text_encoder.get_input_embeddings().weight.data[token_id] = emb

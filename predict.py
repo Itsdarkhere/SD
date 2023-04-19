@@ -55,9 +55,26 @@ class Predictor(BasePredictor):
         ]
 
         self.embeddings_dict = {}
+        self.placeholder_tokens_dict = {}
         for concept in self.concepts:
             loaded_learned_embeds = torch.load(concept, map_location="cpu")
             self.embeddings_dict[concept] = next(iter(loaded_learned_embeds['string_to_param'].values()))
+
+            # Add tokens and update the text encoder for each concept
+            concept_letter = concept[0]
+            placeholder_token = ""
+            for i, emb in enumerate(embeddings):
+                new_token = f"_{concept_letter}{i+1}"
+                placeholder_token += new_token
+                self.tokenizer.add_tokens(new_token)
+            self.text_encoder.resize_token_embeddings(len(self.tokenizer))
+            
+            for i, emb in enumerate(embeddings):
+                new_token = f"_{concept_letter}{i+1}"
+                token_id = self.tokenizer.convert_tokens_to_ids(new_token)
+                self.text_encoder.get_input_embeddings().weight.data[token_id] = emb
+
+            self.placeholder_tokens_dict[concept] = placeholder_token
 
     def predict(
         self,
@@ -146,42 +163,10 @@ class Predictor(BasePredictor):
             "image": image
         }
 
-        concept_letter = ""
-        if (concept == 'bedroom9000.pt'):
-            concept_letter = 'a'
-        elif (concept == 'bedroom9800.pt'):
-            concept_letter = 'b'
-        elif (concept == 'boardroom6000.pt'):
-            concept_letter = 'c'
-        elif (concept == 'boardroom10000.pt'):
-            concept_letter = 'd'
-        elif (concept == 'empty5000.pt'):
-            concept_letter = 'e'
-        elif (concept == 'living6000.pt'):
-            concept_letter = 'f'
-        elif (concept == 'living10000.pt'):
-            concept_letter = 'g'
-        elif (concept == 'office10000.pt'):
-            concept_letter = 'h'
-        elif (concept == 'privateoffice8200.pt'):
-            concept_letter = 'i'
-        elif (concept == 'office13200.pt'):
-            concept_letter = 'j'
-        elif (concept == 'privateoffice10000.pt'):
-            concept_letter = 'k'
-
         # Separate the token and the embed
         # Use the stored embeddings for the chosen concept
         embeddings = self.embeddings_dict[concept]
-        
-        placeholder_token = ""
-        for i, emb in enumerate(embeddings):
-            new_token = f"_{concept_letter}{i+1}"
-            placeholder_token += new_token
-            self.tokenizer.add_tokens(new_token)
-            self.text_encoder.resize_token_embeddings(len(self.tokenizer))
-            token_id = self.tokenizer.convert_tokens_to_ids(new_token)
-            self.text_encoder.get_input_embeddings().weight.data[token_id] = emb
+        placeholder_token = self.placeholder_tokens_dict[concept]
 
         # placeholder_token Needs to be in the prompt
         print("loading StableDiffusionInpaintPipeline with updated tokenizer and text_encoder")

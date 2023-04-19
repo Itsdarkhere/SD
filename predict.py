@@ -39,6 +39,26 @@ class Predictor(BasePredictor):
             local_files_only=True,
         )
 
+        # Load the learned concepts embeddings
+        self.concepts = [
+            'bedroom9000.pt',
+            'bedroom9800.pt',
+            'boardroom6000.pt',
+            'boardroom10000.pt',
+            'empty5000.pt',
+            'living6000.pt',
+            'living10000.pt',
+            'office10000.pt',
+            'office13200.pt',
+            'privateoffice8200.pt',
+            'privateoffice10000.pt',
+        ]
+
+        self.embeddings_dict = {}
+        for concept in self.concepts:
+            loaded_learned_embeds = torch.load(concept, map_location="cpu")
+            self.embeddings_dict[concept] = next(iter(loaded_learned_embeds['string_to_param'].values()))
+
     def predict(
         self,
         concept: str = Input(
@@ -126,9 +146,6 @@ class Predictor(BasePredictor):
             "image": image
         }
 
-        # Load the learned concept
-        loaded_learned_embeds = torch.load(concept, map_location="cpu")
-
         concept_letter = ""
         if (concept == 'bedroom9000.pt'):
             concept_letter = 'a'
@@ -154,7 +171,9 @@ class Predictor(BasePredictor):
             concept_letter = 'k'
 
         # Separate the token and the embed
-        embeddings = next(iter(loaded_learned_embeds['string_to_param'].values()))
+        # Use the stored embeddings for the chosen concept
+        embeddings = self.embeddings_dict[concept]
+        
         placeholder_token = ""
         for i, emb in enumerate(embeddings):
             new_token = f"_{concept_letter}{i+1}"
